@@ -27,7 +27,7 @@ import java.util.TimerTask;
 
 @RestController
 public class IronGramController {
-    Timer timer;
+
     @Autowired
     UserRepository users;
 
@@ -127,7 +127,7 @@ public class IronGramController {
         return photos.findBySenderAndStatus(user, false);
     }
     public synchronized void deleteCaller(Photo photo) {
-        this.timer = new Timer();
+        Timer timer = new Timer();
 
         TimerTask action = new TimerTask() {
             public void run() {
@@ -136,7 +136,7 @@ public class IronGramController {
 
         };
 
-        this.timer.schedule(action, photo.getSeconds() * 1000);
+        timer.schedule(action, photo.getSeconds() * 1000);
     }
     public void delete(Photo photo){
         photos.delete(photo.getId());
