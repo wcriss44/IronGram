@@ -130,6 +130,7 @@ public class IronGramController {
         Timer timer = new Timer();
 
         TimerTask action = new TimerTask() {
+            @Override
             public void run() {
                 delete(photo);
             }
