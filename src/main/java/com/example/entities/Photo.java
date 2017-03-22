@@ -18,7 +18,21 @@ public class Photo {
     @Column(nullable = false)
     String filename;
 
+    @Column(nullable = false)
+    boolean status;
+
+    @Column(nullable = false)
+    int seconds;
+
     public Photo() {
+    }
+
+    public Photo(User sender, User recipient, String filename, boolean status, int seconds) {
+        this.sender = sender;
+        this.recipient = recipient;
+        this.filename = filename;
+        this.status = status;
+        this.seconds = seconds;
     }
 
     public Photo(User sender, User recipient, String filename) {
@@ -57,5 +71,21 @@ public class Photo {
 
     public void setFilename(String filename) {
         this.filename = filename;
+    }
+
+    public boolean isStatus() {
+        return status;
+    }
+
+    public void setStatus(boolean status) {
+        this.status = status;
+    }
+
+    public int getSeconds() {
+        return seconds;
+    }
+
+    public void setSeconds(int seconds) {
+        this.seconds = seconds;
     }
 }

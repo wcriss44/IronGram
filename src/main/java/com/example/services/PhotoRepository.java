@@ -8,4 +8,5 @@ import java.util.List;
 
 public interface PhotoRepository extends CrudRepository<Photo, Integer> {
     List<Photo> findByRecipient(User recipient);
+    List<Photo> findBySenderAndStatus(User sender, boolean status);
 }

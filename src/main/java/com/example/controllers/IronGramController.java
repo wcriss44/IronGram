@@ -7,6 +7,7 @@ import com.example.services.UserRepository;
 import com.example.utilities.PasswordStorage;
 import org.h2.tools.Server;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -21,9 +22,12 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 @RestController
 public class IronGramController {
+    Timer timer;
     @Autowired
     UserRepository users;
 
@@ -68,11 +72,7 @@ public class IronGramController {
         return users.findFirstByName(username);
     }
     @RequestMapping("/upload")
-    public Photo upload(
-            HttpSession session,
-            HttpServletResponse response,
-            String receiver,
-            MultipartFile photo
+    public Photo upload(HttpSession session, HttpServletResponse response, String receiver, MultipartFile photo, int time, boolean status
     ) throws Exception {
         String username = (String) session.getAttribute("username");
         if (username == null) {
@@ -81,6 +81,8 @@ public class IronGramController {
 
         User senderUser = users.findFirstByName(username);
         User receiverUser = users.findFirstByName(receiver);
+        File dir = new File("public/photons");
+        dir.mkdirs();
 
         if (receiverUser == null) {
             throw new Exception("Receiver name doesn't exist.");
@@ -90,7 +92,7 @@ public class IronGramController {
             throw new Exception("Only images are allowed.");
         }
 
-        File photoFile = File.createTempFile("photo", photo.getOriginalFilename(), new File("public"));
+        File photoFile = File.createTempFile("photo", photo.getOriginalFilename(), dir);
         FileOutputStream fos = new FileOutputStream(photoFile);
         fos.write(photo.getBytes());
 
@@ -98,6 +100,8 @@ public class IronGramController {
         p.setSender(senderUser);
         p.setRecipient(receiverUser);
         p.setFilename(photoFile.getName());
+        p.setStatus(status);
+        p.setSeconds(time);
         photos.save(p);
 
         response.sendRedirect("/");
@@ -110,8 +114,33 @@ public class IronGramController {
         if (username == null) {
             throw new Exception("Not logged in.");
         }
-
         User user = users.findFirstByName(username);
+        for (Photo photo: photos.findByRecipient(user)) {
+            deleteCaller(photo);
+        }
         return photos.findByRecipient(user);
+    }
+    @RequestMapping("/public-photos/{senderName}")
+    public List<Photo> showPublicPhotos(@PathVariable("senderName") String senderName) throws Exception {
+        User user = users.findFirstByName(senderName);
+
+        return photos.findBySenderAndStatus(user, false);
+    }
+    public synchronized void deleteCaller(Photo photo) {
+        this.timer = new Timer();
+
+        TimerTask action = new TimerTask() {
+            public void run() {
+                delete(photo);
+            }
+
+        };
+
+        this.timer.schedule(action, photo.getSeconds() * 1000);
+    }
+    public void delete(Photo photo){
+        photos.delete(photo.getId());
+        File file = new File("public/photons/" + photo.getFilename());
+        file.delete();
     }
 }

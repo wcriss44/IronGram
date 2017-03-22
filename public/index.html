@@ -11,12 +11,15 @@
 </form>
 
 <form action="/upload" method="post" enctype="multipart/form-data" id="upload" hidden>
-    <input type="text" placeholder="Receiver name" name="receiver"/>
+    <div style="display:inline-block;"><input type="text" placeholder="Receiver name" name="receiver"/>
+    <p style="display:inline;">Viewable seconds:</p><input type="number" value="10" name="time"/>
+        <input type="checkbox" value="true" name="status" checked="checked"/><p style="display:inline;">Private</p></div><br/>
     <input type="file" name="photo"/>
     <button type="submit">Upload</button>
 </form>
 
 <div id="photos"></div>
+<div id="current-photo"></div>
 
 <script src="jquery-3.2.0.min.js"></script>
 <script src="main.js"></script>
