@@ -116,7 +116,7 @@ public class IronGramController {
         }
         User user = users.findFirstByName(username);
         for (Photo photo: photos.findByRecipient(user)) {
-            deleteCaller(photo);
+            //deleteCaller(photo);
         }
         return photos.findByRecipient(user);
     }
